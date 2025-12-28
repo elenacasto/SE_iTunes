@@ -21,11 +21,11 @@ class Model:
 
         for album_id, minuti in self.album.items():
             if minuti > d:
-                self.G.add_node(album_id)
+                self.G.add_node(album_id) # numero giusto di album (nodi) !
 
         for a1, a2 in DAO.getCoppieAlbum():
             if a1 in self.G and a2 in self.G:
-                self.G.add_edge(a1, a2)
+                self.G.add_edge(a1, a2) # da controllare !!!
 
     def get_nodes(self):
         return self.G.number_of_nodes()
