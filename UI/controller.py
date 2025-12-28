@@ -9,11 +9,22 @@ class Controller:
 
     def handle_crea_grafo(self, e):
         """ Handler per gestire creazione del grafo """""
-        # TODO
+        try:
+            d = int(self._view.txt_durata.value)
+        except ValueError:
+            self._view.show_alert("Numero non valido!")
+
+        self._model.build_graph(d)
+        self._view.lista_visualizzazione_1.controls.clear()
+        self._view.lista_visualizzazione_1.controls.append(
+            ft.Text(f"Grafo creato: {self._model.get_nodes()} album, {self._model.get_edges()} archi")
+        )
+
+        self._view.update()
 
     def get_selected_album(self, e):
         """ Handler per gestire la selezione dell'album dal dropdown """""
-        # TODO
+        pass
 
     def handle_analisi_comp(self, e):
         """ Handler per gestire l'analisi della componente connessa """""
