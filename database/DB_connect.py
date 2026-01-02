@@ -16,7 +16,7 @@ class DBConnect:
         raise RuntimeError("Non creare un'istanza, usa il metodo di classe ottieni_connessione()!")
 
     @classmethod
-    def get_connection(cls, nome_pool="mio_pool", dimensione_pool=3) -> mysql.connector.pooling.PooledMySQLConnection | None:
+    def get_connection(cls, nome_pool="mio_pool", dimensione_pool=10) -> mysql.connector.pooling.PooledMySQLConnection | None:
         """
         Metodo factory per ottenere una connessione dal pool.
         Inizializza il pool se non esiste ancora.

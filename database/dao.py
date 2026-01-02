@@ -1,57 +1,63 @@
 from database.DB_connect import DBConnect
+from model.album import Album
+
 
 class DAO:
     @staticmethod
-    def getSommaAlbum():
+    def getDurataAlbum(min_duration):
         conn = DBConnect.get_connection()
 
         result = []
 
         cursor = conn.cursor(dictionary=True)
-        query = """ select sum(t.milliseconds) as somma, a.id
-                    from track t , album a 
-                    where t.album_id = a.id 
-                    group by a.id """
+        query = """ SELECT sum(t.milliseconds)/60000 AS durata, a.id, a.title, a.artist_id
+                    FROM track t, album a 
+                    WHERE t.album_id = a.id 
+                    GROUP BY a.id, a.title, a.artist_id
+                    HAVING durata > %s """
 
-        cursor.execute(query)
+        cursor.execute(query, (min_duration,))
 
         for row in cursor:
-            result.append((row['somma'],row['id']))
+            album = Album(id = row['id'], title = row['title'], artist_id = row['artist_id'], durata = row["durata"])
+            result.append(album)
 
         cursor.close()
         conn.close()
+
         return result
+
 
     @staticmethod
     def getCoppieAlbum():
         conn = DBConnect.get_connection()
         result = []
+
+
         cursor = conn.cursor(dictionary=True)
-        query = """ select a1.id as a1, a2.id as a2
-                    from track t1, track t2, album a1, album a2
-                    where a1.id < a2.id and 
-                          t1.album_id = a1.id and t2.album_id = a2.id 
-                          and a1.artist_id = a2.artist_id """
+        query =  """ SELECT DISTINCT
+                           x.album_id AS a1,
+                           y.album_id AS a2
+                     FROM (
+                        SELECT DISTINCT pt.playlist_id, t.album_id
+                        FROM playlist_track pt
+                        JOIN track t ON pt.track_id = t.id
+                     ) x
+                     JOIN (
+                        SELECT DISTINCT pt.playlist_id, t.album_id
+                        FROM playlist_track pt
+                        JOIN track t ON pt.track_id = t.id
+                     ) y
+                     ON x.playlist_id = y.playlist_id
+                     AND x.album_id < y.album_id """
+        #query più complessa per rendere semplice il model
+
         cursor.execute(query)
         for row in cursor:
             result.append((row['a1'],row['a2']))
 
-        cursor.close()
-        conn.close()
-        return result
-
-    @staticmethod
-    def getAlbum():
-        conn = DBConnect.get_connection()
-
-        result = []
-        cursor = conn.cursor(dictionary=True)
-        query = """ select *
-                    from album """
-        cursor.execute(query)
-        for row in cursor:
-            result.append(row)
 
         cursor.close()
         conn.close()
+
         return result
